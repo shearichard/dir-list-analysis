@@ -17,12 +17,42 @@ Options:
 
 '''
 from docopt import docopt
+from sets import Set
 
 class DirectoryListing(object):
-    def __init__(self, fileinpath):
+    def __init__(self, fileinpath, testpath):
         self.fileinpath = fileinpath 
+        self.testpath = testpath 
         self.dicfiles = {}
+
+        self.set_testfiles = None
+        self.set_inputfiles = None
+        self.lst_files_in_test_but_not_listing = []
+        self.lst_files_in_listing_but_not_test = []
+
         self.__make_dic_from_filein()
+        self.__make_test_set()
+        self.__make_input_set()
+
+    def __make_input_set(self):
+        '''
+        Make a Set object of all the input filenames
+        '''
+        lstwork = []
+        for k in self.dicfiles:
+            lstwork.append(self.dicfiles[k]['filename'])
+        self.set_inputfiles = Set(lstwork)
+         
+    def __make_test_set(self):
+        '''
+        Make a Set object of all the filenames
+        to be tested against
+        '''
+        lstwork = []
+        with open(self.testpath, 'r') as f:
+            for line in f:
+                lstwork.append(line)
+        self.set_testfiles = Set(lstwork)
 
     def __make_dic_from_fileinline(self, line):
         '''
@@ -34,10 +64,14 @@ class DirectoryListing(object):
         try:
             mm, dd, yyyy  = lstelems[0].split("/")
         except ValueError:
+            #Some lines aren't the format we want
             pass
         except IndexError:
+            #Some lines aren't the format we want
             pass
         else:
+            #At this stage the line is a goody
+            #so make the date usable
             str_dt_iso = "%s-%s-%s" % (yyyy, mm, dd) 
             
             #file names can have spaces (unfortunaly)
@@ -69,11 +103,13 @@ def main(filein, filetest, fileout):
     print filein
     print filetest
     print fileout
-    d = DirectoryListing(filein)
+    d = DirectoryListing(filein, filetest)
     import pprint
     pprint.pprint(d.dicfiles)
     print len(d.dicfiles)
     print filein
+    print d.set_testfiles
+    print d.set_inputfiles
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Whats Present 0.1')
