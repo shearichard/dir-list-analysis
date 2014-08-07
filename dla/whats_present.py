@@ -18,6 +18,7 @@ Options:
 '''
 from docopt import docopt
 from sets import Set
+import string
 
 class DirectoryListing(object):
     def __init__(self, fileinpath, testpath):
@@ -27,20 +28,43 @@ class DirectoryListing(object):
 
         self.set_testfiles = None
         self.set_inputfiles = None
-        self.lst_files_in_test_but_not_listing = []
-        self.lst_files_in_listing_but_not_test = []
 
         self.__make_dic_from_filein()
         self.__make_test_set()
         self.__make_input_set()
 
+    def files_in_test_but_not_listing(self):
+        '''
+        Returns a set of file names which are
+        in the test set but not in the listing
+        '''
+        workset = self.set_testfiles.difference((self.set_inputfiles))
+        return workset
+
+    def files_in_listing_but_not_test(self):
+        '''
+        Returns a set of file names which are
+        in the listing set but not in the test set 
+        '''
+        workset = self.set_inputfiles.difference((self.set_testfiles))
+        return workset
+
+    def __clean_non_printable(self, the_string):
+        '''
+        Removes control chars from string
+        
+        Assumes strings are ASCII
+        '''
+        return filter(lambda x: x in string.printable, the_string)
+        
     def __make_input_set(self):
         '''
         Make a Set object of all the input filenames
         '''
         lstwork = []
         for k in self.dicfiles:
-            lstwork.append(self.dicfiles[k]['filename'])
+            fname_clean = self.__clean_non_printable(self.dicfiles[k]['filename'])
+            lstwork.append(fname_clean)
         self.set_inputfiles = Set(lstwork)
          
     def __make_test_set(self):
@@ -49,9 +73,15 @@ class DirectoryListing(object):
         to be tested against
         '''
         lstwork = []
-        with open(self.testpath, 'r') as f:
+        with open(self.testpath, "rb") as f:
+            lines = []
             for line in f:
-                lstwork.append(line)
+                lstwork.append(line[:-1]) if line[-1] == "\n" else lines.append(line)
+
+
+#        for line in lines:
+#            fname_clean = self.__clean_non_printable(line)
+#            lstwork.append(fname_clean)
         self.set_testfiles = Set(lstwork)
 
     def __make_dic_from_fileinline(self, line):
@@ -101,13 +131,21 @@ class DirectoryListing(object):
     
 def main(filein, filetest, fileout):
     d = DirectoryListing(filein, filetest)
-    print d.set_testfiles
-    print d.set_inputfiles
+    print "test"
+    print(len(d.set_testfiles))
+    print "input"
+    print(len(d.set_inputfiles))
+    s1 = d.files_in_test_but_not_listing()
+    s2 = d.files_in_listing_but_not_test()
+    print "files_in_test_but_not_listing"
+    print(len(s1))
+    print(s1)
+    print("*" * 50)
+    print "files_in_listing_but_not_test"
+    print(len(s2))
+    print(s2)
+    print("*" * 50)
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Whats Present 0.1')
-    import sys
-    print sys.argv[1]
-    print sys.argv[2]
-    print(arguments)
     main(arguments['-i'], arguments['-t'], arguments['-o'])
