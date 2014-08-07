@@ -3,12 +3,6 @@ dir-list-analysis
 
 Various tools for analysing directory file listings
 
-STATUS  
-=======
-The core processing works but some code was written a long time ago is not very PEP-8ish
-and there's lots of hard-coded paths which need to got rid of and replaced with some 
-command line args/config file supplied values
-
 whats_present
 =======
 Given a list of file names provides information about which files are
