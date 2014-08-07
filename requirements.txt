@@ -1,3 +1,8 @@
+Pygments==1.6
 argparse==1.2.1
 docopt==0.6.2
+fancycompleter==0.4
+pdbpp==0.7.2
+pyrepl==0.8.4
+wmctrl==0.1
 wsgiref==0.1.2
