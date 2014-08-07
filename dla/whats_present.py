@@ -100,14 +100,7 @@ class DirectoryListing(object):
                 self.__make_dic_from_fileinline(line)
     
 def main(filein, filetest, fileout):
-    print filein
-    print filetest
-    print fileout
     d = DirectoryListing(filein, filetest)
-    import pprint
-    pprint.pprint(d.dicfiles)
-    print len(d.dicfiles)
-    print filein
     print d.set_testfiles
     print d.set_inputfiles
 
