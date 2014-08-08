@@ -16,6 +16,8 @@ Options:
     -t FILETEST  specify test file 
 
 '''
+from dla_temp_utils import getTempPath
+
 from docopt import docopt
 from sets import Set
 import string
@@ -76,7 +78,13 @@ class DirectoryListing(object):
         with open(self.testpath, "rb") as f:
             lines = []
             for line in f:
-                lstwork.append(line[:-1]) if line[-1] == "\n" else lines.append(line)
+                #Unix
+                if line[-1] == "\n": 
+                    line = line[:-1] 
+                #Windows has both
+                if line[-1] == "\r": 
+                    line = line[:-1] 
+                lstwork.append(line)
 
 
 #        for line in lines:
@@ -129,7 +137,14 @@ class DirectoryListing(object):
             for line in f:
                 self.__make_dic_from_fileinline(line)
     
+def dump_set_to_file(fname, set):
+    lout = []
+    with open(fname, 'w') as f:
+        for elem in sorted(set):
+            f.write(elem + '\n')
+
 def main(filein, filetest, fileout):
+    import pprint
     d = DirectoryListing(filein, filetest)
     print "test"
     print(len(d.set_testfiles))
@@ -139,12 +154,19 @@ def main(filein, filetest, fileout):
     s2 = d.files_in_listing_but_not_test()
     print "files_in_test_but_not_listing"
     print(len(s1))
-    print(s1)
+    #pprint.pprint(s1)
+    p_s1 = getTempPath("s1.txt")
+    dump_set_to_file(p_s1, s1)
     print("*" * 50)
     print "files_in_listing_but_not_test"
     print(len(s2))
-    print(s2)
+    #pprint.pprint(s2)
+    p_s2 = getTempPath("s2.txt")
+    dump_set_to_file(p_s2, s2)
     print("*" * 50)
+    print getTempPath("test1")
+    print p_s1
+    print p_s2
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version='Whats Present 0.1')
